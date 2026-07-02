@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>我爱背单词</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📘</text></svg>">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: #f0f4fa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px 16px 40px;
+            display: flex;
+            justify-content: center;
+        }
+        .app {
+            max-width: 880px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 40px;
+            padding: 28px 24px 36px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+        }
+        h1 { font-size: 1.8rem; font-weight: 600; color: #1a2a4a; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subhead { color: #4a5f7a; font-size: 0.95rem; margin-bottom: 20px; padding-left: 12px; border-left: 4px solid #4a7cf7; }
+        .upload-area {
+            background: #f7faff;
+            border: 2px dashed #c5d8f0;
+            border-radius: 28px;
+            padding: 20px 16px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 16px;
+            transition: 0.2s;
+        }
+        .upload-area:hover { background: #eef5ff; border-color: #4a7cf7; }
+        .upload-area input { display: none; }
+        .upload-label { display: flex; flex-direction: column; align-items: center; gap: 4px; font-weight: 500; color: #1f2b44; }
+        .upload-label span:first-child { font-size: 2rem; }
+        .file-status { margin-top: 6px; font-size: 0.85rem; color: #1f3a6b; background: #e8effa; padding: 4px 18px; border-radius: 40px; display: inline-block; }
+        .stats-bar {
+            display: flex; flex-wrap: wrap; gap: 8px 16px;
+            background: #eef4fc; padding: 10px 18px; border-radius: 40px;
+            margin-bottom: 12px; font-size: 0.9rem; color: #1f2f4a;
+            align-items: center;
+        }
+        .stats-bar .badge { background: #d2def5; padding: 2px 16px; border-radius: 30px; font-weight: 500; }
+        .stats-bar .wrong-badge { background: #ffebee; color: #b71c1c; padding: 2px 16px; border-radius: 30px; font-weight: 500; cursor: pointer; }
+        .group-nav {
+            display: flex; flex-wrap: wrap; gap: 8px;
+            margin: 12px 0 16px;
+        }
+        .group-btn {
+            background: #eef2f9; border: none; padding: 6px 16px; border-radius: 30px;
+            font-size: 0.85rem; font-weight: 500; color: #1f2f4a; cursor: pointer;
+            transition: 0.15s;
+        }
+        .group-btn.active { background: #1a2a4a; color: white; }
+        .group-btn:hover { background: #d4def0; }
+        .group-btn.active:hover { background: #2a3a5a; }
+        .progress-wrap {
+            display: flex; align-items: center; gap: 12px;
+            margin: 6px 0 16px;
+        }
+        .progress-bar {
+            flex: 1; height: 8px; background: #e0e8f2; border-radius: 20px; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; width: 0%; background: #4a7cf7; border-radius: 20px; transition: width 0.3s;
+        }
+        .word-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 12px;
+            margin: 16px 0 20px;
+        }
+        .word-item {
+            background: #f8fbff;
+            border-radius: 16px;
+            padding: 14px 16px;
+            border: 1px solid #e6edf6;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: 0.15s;
+        }
+        .word-item .word-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .word-item .en {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #0a1a38;
+        }
+        .word-item .speak-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 30px;
+            transition: 0.15s;
+            opacity: 0.7;
+        }
+        .word-item .speak-btn:hover {
+            background: #e6edf6;
+            opacity: 1;
+        }
+        .word-item .phonetic {
+            font-size: 0.85rem;
+            color: #4a6a8a;
+            margin-top: 2px;
+            font-family: 'Times New Roman', 'IPA', serif;
+        }
+        .word-item .zh {
+            font-size: 0.9rem;
+            color: #1f2f4a;
+            margin-top: 2px;
+        }
+        .word-item .status {
+            font-size: 0.7rem;
+            color: #2e7d32;
+            margin-top: 6px;
+        }
+        .word-item.mastered {
+            background: #e8f5e9;
+            border-color: #a5d6a7;
+        }
+        .word-item .freq {
+            font-size: 0.65rem;
+            color: #8a9fb0;
+            margin-top: 2px;
+        }
+        .quiz-area {
+            background: #f8fbff;
+            border-radius: 32px;
+            padding: 24px 20px;
+            margin: 12px 0 20px;
+            text-align: center;
+            border: 1px solid #e6edf6;
+        }
+        .quiz-prompt { font-size: 1.8rem; font-weight: 600; color: #0a1a38; margin-bottom: 4px; }
+        .quiz-hint { font-size: 1rem; color: #4a6a8a; }
+        .quiz-input {
+            width: 80%; max-width: 300px; padding: 12px 20px; font-size: 1.2rem;
+            border: 2px solid #d0dcee; border-radius: 60px; margin: 16px 0 12px;
+            outline: none; text-align: center;
+        }
+        .quiz-input:focus { border-color: #4a7cf7; }
+        .quiz-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; align-items: center; }
+        .btn-primary { background: #1a2a4a; color: white; border: none; padding: 10px 32px; border-radius: 60px; font-weight: 600; cursor: pointer; font-size: 1rem; }
+        .btn-primary:hover { background: #2a3a5a; }
+        .btn-secondary { background: #eef2f9; color: #1f2f4a; border: none; padding: 10px 28px; border-radius: 60px; font-weight: 500; cursor: pointer; }
+        .btn-secondary:hover { background: #dce6f5; }
+        .btn-success { background: #2e7d32; color: white; border: none; padding: 10px 28px; border-radius: 60px; font-weight: 500; cursor: pointer; }
+        .btn-success:hover { background: #1b5e20; }
+        .btn-danger { background: #ffebee; color: #b71c1c; border: none; padding: 8px 20px; border-radius: 60px; font-weight: 500; cursor: pointer; }
+        .btn-danger:hover { background: #ffcdd2; }
+        .btn-outline { background: transparent; border: 2px solid #4a7cf7; color: #1a2a4a; padding: 8px 20px; border-radius: 60px; font-weight: 500; cursor: pointer; font-size: 0.95rem; }
+        .btn-outline:hover { background: #e3edfe; }
+        .result-feedback { margin: 12px 0 8px; font-size: 1.1rem; font-weight: 500; min-height: 2rem; }
+        .mode-selector {
+            display: flex; flex-wrap: wrap; gap: 8px;
+            margin: 12px 0 16px;
+            justify-content: center;
+        }
+        .mode-btn {
+            background: #eef2f9; border: 2px solid transparent; padding: 6px 18px; border-radius: 40px;
+            font-size: 0.85rem; font-weight: 500; color: #1f2f4a; cursor: pointer; transition: 0.15s;
+        }
+        .mode-btn.active { border-color: #4a7cf7; background: #e3edfe; }
+        .mode-btn:hover { background: #dce6f5; }
+        .wrong-list {
+            margin-top: 20px; background: #fff8f8; border-radius: 24px; padding: 16px 20px;
+            border: 1px solid #ffcdd2;
+        }
+        .wrong-list h3 { font-size: 1rem; color: #b71c1c; margin-bottom: 10px; }
+        .wrong-item { display: inline-block; background: #ffebee; padding: 4px 14px; border-radius: 30px; margin: 4px 6px 4px 0; font-size: 0.9rem; }
+        .empty-state { color: #6a7f9f; padding: 20px 0; text-align: center; }
+        .flex-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .hidden { display: none !important; }
+        .mb-8 { margin-bottom: 8px; }
+        .footer {
+            margin-top: 28px;
+            padding-top: 16px;
+            border-top: 1px solid #e6edf6;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #8a9fb0;
+        }
+        @media (max-width: 480px) {
+            .app { padding: 18px 14px; }
+            .quiz-prompt { font-size: 1.4rem; }
+            .word-list { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+<div class="app" id="app">
+    <div class="flex-row">
+        <h1>📘 我爱背单词</h1>
+        <div>
+            <button class="btn-secondary" id="resetAllBtn" style="font-size:0.8rem;">🔄 重置</button>
+        </div>
+    </div>
+    <div class="subhead">📂 上传单词表 · 按单元浏览 · 点击 🔊 发音</div>
+
+    <div class="upload-area" id="uploadArea">
+        <input type="file" id="fileInput" accept=".xlsx,.xls">
+        <div class="upload-label">
+            <span>📂</span>
+            <span>上传 .xlsx 文件</span>
+            <span class="file-status" id="fileStatus">未选择文件</span>
+        </div>
+    </div>
+
+    <div class="stats-bar" id="statsBar">
+        <span>📚 <span id="wordCount">0</span> 词</span>
+        <span class="badge" id="progressBadge">✅ 0%</span>
+        <span class="wrong-badge" id="wrongBadge">❌ 错词 0</span>
+        <span style="margin-left:auto;">
+            <button class="btn-success" id="enterQuizBtn" style="padding:4px 20px;font-size:0.85rem;">🚀 进入背诵</button>
+        </span>
+    </div>
+
+    <div class="group-nav" id="groupNav"></div>
+
+    <div class="progress-wrap" id="progressWrap">
+        <span style="font-size:0.85rem; color:#3a5a7a;" id="groupLabel">第 1 组</span>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <span style="font-size:0.85rem; color:#3a5a7a;" id="progressText">0/0</span>
+    </div>
+
+    <div id="browseMode">
+        <div class="word-list" id="wordList"></div>
+    </div>
+
+    <div id="quizMode" class="hidden">
+        <div class="flex-row mb-8">
+            <button class="btn-secondary" id="backToBrowseBtn">⬅ 返回列表</button>
+            <span style="font-size:0.9rem;color:#4a6a8a;" id="quizGroupLabel">第1组 · 背诵</span>
+        </div>
+        <div class="mode-selector" id="modeSelector">
+            <button class="mode-btn active" data-mode="zh2en">📝 中文→英文</button>
+            <button class="mode-btn" data-mode="phonetic2en">🔊 音标→英文</button>
+            <button class="mode-btn" data-mode="listen2en">🎧 听音→拼写</button>
+        </div>
+        <div class="quiz-area">
+            <div class="quiz-prompt" id="quizPrompt">准备开始</div>
+            <div class="quiz-hint" id="quizHint">点击下方“开始背诵”</div>
+            <input class="quiz-input" id="quizInput" placeholder="输入英文" autocomplete="off">
+            <div style="margin-bottom: 10px;">
+                <button class="btn-outline" id="replayBtn" style="display:none;">🔊 重播读音</button>
+            </div>
+            <div class="quiz-actions">
+                <button class="btn-primary" id="submitBtn">确认</button>
+                <button class="btn-secondary" id="nextBtn">下一词</button>
+                <button class="btn-secondary" id="startBtn">开始背诵</button>
+            </div>
+            <div class="result-feedback" id="feedback"></div>
+            <div style="margin-top:6px;font-size:0.85rem;color:#6a7f9f;">
+                进度: <span id="currentIndexSpan">0</span> / <span id="totalInGroupSpan">0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="wrong-list" id="wrongList">
+        <h3>📕 错词本 <span id="wrongCountLabel">(0)</span></h3>
+        <div id="wrongWordsContainer"><span class="empty-state">暂无错词，继续加油！</span></div>
+        <button class="btn-danger" id="clearWrongBtn" style="margin-top:10px;">清空错词本</button>
+        <button class="btn-secondary" id="reviewWrongBtn" style="margin-top:10px;margin-left:8px;">📖 复习错词</button>
+    </div>
+
+    <div class="footer">
+        © 2026 我爱背单词 · 自用学习工具 · 数据仅保存在本地浏览器
+    </div>
+</div>
+
+<script>
+(function(){
+    let allWords = [];
+    let currentGroupIndex = 0;
+    let currentWordIndex = 0;
+    let currentMode = 'zh2en';
+    let isQuizMode = false;
+    let isReviewMode = false;
+    let reviewWords = [];
+    let currentReviewIndex = 0;
+    let currentWordForReplay = '';
+
+    const GROUP_SIZE = 50;
+    const STORAGE_KEY_DATA = 'wordPro_data';
+    const STORAGE_KEY_PROGRESS = 'wordPro_progress';
+    const STORAGE_KEY_WRONG = 'wordPro_wrong';
+
+    const $ = id => document.getElementById(id);
+    const fileInput = $('fileInput');
+    const uploadArea = $('uploadArea');
+    const fileStatus = $('fileStatus');
+    const wordCountSpan = $('wordCount');
+    const progressBadge = $('progressBadge');
+    const wrongBadge = $('wrongBadge');
+    const groupNav = $('groupNav');
+    const progressFill = $('progressFill');
+    const progressText = $('progressText');
+    const groupLabel = $('groupLabel');
+    const wordListEl = $('wordList');
+    const browseMode = $('browseMode');
+    const quizMode = $('quizMode');
+    const enterQuizBtn = $('enterQuizBtn');
+    const backToBrowseBtn = $('backToBrowseBtn');
+    const quizGroupLabel = $('quizGroupLabel');
+    const quizPrompt = $('quizPrompt');
+    const quizHint = $('quizHint');
+    const quizInput = $('quizInput');
+    const submitBtn = $('submitBtn');
+    const nextBtn = $('nextBtn');
+    const startBtn = $('startBtn');
+    const feedback = $('feedback');
+    const currentIndexSpan = $('currentIndexSpan');
+    const totalInGroupSpan = $('totalInGroupSpan');
+    const wrongListContainer = $('wrongWordsContainer');
+    const wrongCountLabel = $('wrongCountLabel');
+    const clearWrongBtn = $('clearWrongBtn');
+    const reviewWrongBtn = $('reviewWrongBtn');
+    const resetAllBtn = $('resetAllBtn');
+    const replayBtn = $('replayBtn');
+
+    function loadData() {
+        try { const raw = localStorage.getItem(STORAGE_KEY_DATA); if (raw) return JSON.parse(raw); } catch(e) {}
+        return null;
+    }
+    function saveData(words) {
+        localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(words));
+    }
+
+    function loadProgress() {
+        try { const raw = localStorage.getItem(STORAGE_KEY_PROGRESS); if (raw) return JSON.parse(raw); } catch(e) {}
+        return {};
+    }
+    function saveProgress(progress) {
+        localStorage.setItem(STORAGE_KEY_PROGRESS, JSON.stringify(progress));
+    }
+
+    function loadWrongWords() {
+        try { const raw = localStorage.getItem(STORAGE_KEY_WRONG); if (raw) return JSON.parse(raw); } catch(e) {}
+        return [];
+    }
+    function saveWrongWords(wrongList) {
+        localStorage.setItem(STORAGE_KEY_WRONG, JSON.stringify(wrongList));
+    }
+
+    function speakWord(word) {
+        if (!window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(word);
+        u.lang = 'en-US';
+        u.rate = 0.9;
+        const voices = window.speechSynthesis.getVoices();
+        const enVoice = voices.find(v => v.lang.startsWith('en-US')) || voices.find(v => v.lang.startsWith('en'));
+        if (enVoice) u.voice = enVoice;
+        window.speechSynthesis.speak(u);
+    }
+
+    function getCurrentGroupWords() {
+        if (isReviewMode) return reviewWords;
+        const start = currentGroupIndex * GROUP_SIZE;
+        const end = Math.min(start + GROUP_SIZE, allWords.length);
+        return allWords.slice(start, end);
+    }
+
+    function getGroupCount() {
+        return Math.ceil(allWords.length / GROUP_SIZE) || 1;
+    }
+
+    function renderBrowseMode() {
+        const words = getCurrentGroupWords();
+        if (words.length === 0) {
+            wordListEl.innerHTML = `<div class="empty-state">📭 当前组无单词</div>`;
+            return;
+        }
+        let html = '';
+        for (const w of words) {
+            const mastered = w.mastered ? '✅' : '⬜';
+            const cls = w.mastered ? 'word-item mastered' : 'word-item';
+            const phoneticDisplay = w.phonetic || '';
+            html += `
+                <div class="${cls}" data-en="${w.en}">
+                    <div class="word-row">
+                        <span class="en">${w.en}</span>
+                        <button class="speak-btn" onclick="window._speakWord('${w.en.replace(/'/g, "\\'")}')" title="点击发音">🔊</button>
+                    </div>
+                    ${phoneticDisplay ? `<div class="phonetic">${phoneticDisplay}</div>` : ''}
+                    <div class="zh">${w.zh || ''}</div>
+                    <div class="status">${mastered} ${w.mastered ? '已掌握' : '学习中'}</div>
+                </div>
+            `;
+        }
+        wordListEl.innerHTML = html;
+    }
+
+    window._speakWord = function(word) {
+        speakWord(word);
+    };
+
+    function renderGroupNav() {
+        const total = getGroupCount();
+        let html = '';
+        for (let i = 0; i < total; i++) {
+            const active = (i === currentGroupIndex && !isReviewMode) ? 'active' : '';
+            html += `<button class="group-btn ${active}" data-group="${i}">第${i+1}组</button>`;
+        }
+        if (isReviewMode) {
+            html += `<button class="group-btn active" style="background:#ffcdd2;color:#b71c1c;">📖 复习错词</button>`;
+        }
+        groupNav.innerHTML = html;
+        groupNav.querySelectorAll('.group-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const group = parseInt(this.dataset.group);
+                if (!isNaN(group)) {
+                    isReviewMode = false;
+                    currentGroupIndex = group;
+                    currentWordIndex = 0;
+                    if (isQuizMode) {
+                        currentWordIndex = 0;
+                        renderQuizMode();
+                    }
+                    renderAll();
+                }
+            });
+        });
+    }
+
+    function renderProgress() {
+        const words = getCurrentGroupWords();
+        const total = words.length;
+        let mastered = 0;
+        for (const w of words) if (w.mastered) mastered++;
+        const pct = total > 0 ? Math.round((mastered/total)*100) : 0;
+        progressFill.style.width = pct + '%';
+        progressText.textContent = `${mastered}/${total}`;
+        const groupNum = isReviewMode ? '错词复习' : `第${currentGroupIndex+1}组`;
+        groupLabel.textContent = groupNum;
+
+        wordCountSpan.textContent = allWords.length;
+        const totalMastered = allWords.filter(w => w.mastered).length;
+        const totalPct = allWords.length > 0 ? Math.round((totalMastered/allWords.length)*100) : 0;
+        progressBadge.textContent = `✅ ${totalPct}%`;
+
+        const wrongs = loadWrongWords();
+        wrongBadge.textContent = `❌ 错词 ${wrongs.length}`;
+    }
+
+    function renderWrongWords() {
+        const wrongs = loadWrongWords();
+        wrongCountLabel.textContent = `(${wrongs.length})`;
+        if (wrongs.length === 0) {
+            wrongListContainer.innerHTML = `<span class="empty-state">暂无错词，继续加油！</span>`;
+            return;
+        }
+        let html = '';
+        for (const w of wrongs) {
+            html += `<span class="wrong-item">${w.en} (${w.zh})</span>`;
+        }
+        wrongListContainer.innerHTML = html;
+    }
+
+    function renderQuizMode() {
+        const words = getCurrentGroupWords();
+        if (!words || words.length === 0) {
+            quizPrompt.textContent = '📭 当前组无单词';
+            quizHint.textContent = '请切换分组或上传单词表';
+            quizInput.disabled = true;
+            submitBtn.disabled = true;
+            replayBtn.style.display = 'none';
+            return;
+        }
+        let idx = isReviewMode ? currentReviewIndex : currentWordIndex;
+        if (idx >= words.length) {
+            quizPrompt.textContent = '🎉 本组已完成！';
+            quizHint.textContent = '点击 "返回列表" 查看进度';
+            quizInput.disabled = true;
+            submitBtn.disabled = true;
+            replayBtn.style.display = 'none';
+            return;
+        }
+        const word = words[idx];
+        currentWordForReplay = word.en;
+        quizInput.disabled = false;
+        submitBtn.disabled = false;
+        quizInput.value = '';
+        feedback.textContent = '';
+        quizInput.focus();
+
+        if (currentMode === 'zh2en') {
+            quizPrompt.textContent = word.zh || '（无释义）';
+            quizHint.textContent = `💡 输入对应的英文 (${idx+1}/${words.length})`;
+            replayBtn.style.display = 'none';
+        } else if (currentMode === 'phonetic2en') {
+            quizPrompt.textContent = word.phonetic || '（无音标）';
+            quizHint.textContent = `🔊 根据音标输入英文`;
+            replayBtn.style.display = 'none';
+        } else if (currentMode === 'listen2en') {
+            quizPrompt.textContent = '🎧 请听读音，输入英文';
+            quizHint.textContent = `点击 "重播读音" 可反复听 (${idx+1}/${words.length})`;
+            setTimeout(() => speakWord(word.en), 300);
+            replayBtn.style.display = 'inline-block';
+            replayBtn.textContent = '🔊 重播读音';
+        }
+        currentIndexSpan.textContent = idx + 1;
+        totalInGroupSpan.textContent = words.length;
+        quizGroupLabel.textContent = isReviewMode ? '错词复习' : `第${currentGroupIndex+1}组 · 背诵`;
+    }
+
+    replayBtn.addEventListener('click', function() {
+        if (currentWordForReplay) {
+            speakWord(currentWordForReplay);
+            this.textContent = '✅ 已重播';
+            setTimeout(() => {
+                this.textContent = '🔊 重播读音';
+            }, 800);
+        }
+    });
+
+    function handleSubmit() {
+        const words = getCurrentGroupWords();
+        if (!words || words.length === 0) return;
+        let idx = isReviewMode ? currentReviewIndex : currentWordIndex;
+        if (idx >= words.length) return;
+        const word = words[idx];
+        const input = quizInput.value.trim();
+        if (!input) {
+            feedback.textContent = '⚠️ 请输入单词';
+            feedback.style.color = '#f57c00';
+            return;
+        }
+        const isCorrect = input.toLowerCase() === word.en.toLowerCase();
+        if (isCorrect) {
+            feedback.textContent = '✅ 正确！';
+            feedback.style.color = '#2e7d32';
+            word.mastered = true;
+            const wrongs = loadWrongWords();
+            const newWrongs = wrongs.filter(w => w.en.toLowerCase() !== word.en.toLowerCase());
+            if (newWrongs.length !== wrongs.length) {
+                saveWrongWords(newWrongs);
+                renderWrongWords();
+            }
+            const progress = {};
+            for (const w of allWords) progress[w.en] = w.mastered;
+            saveProgress(progress);
+        } else {
+            feedback.textContent = `❌ 错误，正确答案: ${word.en}`;
+            feedback.style.color = '#c62828';
+            const wrongs = loadWrongWords();
+            if (!wrongs.some(w => w.en.toLowerCase() === word.en.toLowerCase())) {
+                wrongs.push({ en: word.en, zh: word.zh, phonetic: word.phonetic });
+                saveWrongWords(wrongs);
+                renderWrongWords();
+            }
+        }
+        saveData(allWords);
+        renderProgress();
+        renderBrowseMode();
+        setTimeout(() => {
+            if (isCorrect) moveNext();
+        }, 1000);
+    }
+
+    function moveNext() {
+        const words = getCurrentGroupWords();
+        if (!words || words.length === 0) return;
+        let idx = isReviewMode ? currentReviewIndex : currentWordIndex;
+        if (idx + 1 < words.length) {
+            if (isReviewMode) currentReviewIndex++;
+            else currentWordIndex++;
+            renderQuizMode();
+            renderProgress();
+            renderBrowseMode();
+        } else {
+            if (isReviewMode) {
+                quizPrompt.textContent = '🎉 错词复习完成！';
+                quizHint.textContent = '点击 "返回列表" 继续';
+            } else {
+                quizPrompt.textContent = '🎉 本组已完成！';
+                quizHint.textContent = '点击 "返回列表" 查看进度';
+            }
+            quizInput.disabled = true;
+            submitBtn.disabled = true;
+            replayBtn.style.display = 'none';
+        }
+    }
+
+    function startGroup() {
+        const words = getCurrentGroupWords();
+        if (!words || words.length === 0) return;
+        for (const w of words) w.mastered = false;
+        const progress = {};
+        for (const w of allWords) progress[w.en] = w.mastered;
+        saveProgress(progress);
+        saveData(allWords);
+        currentWordIndex = 0;
+        if (isReviewMode) {
+            isReviewMode = false;
+            currentReviewIndex = 0;
+            renderGroupNav();
+        }
+        renderAll();
+        renderQuizMode();
+        renderBrowseMode();
+        quizInput.value = '';
+        feedback.textContent = '';
+    }
+
+    function reviewWrongWords() {
+        const wrongs = loadWrongWords();
+        if (wrongs.length === 0) {
+            feedback.textContent = '🎉 没有错词，继续保持！';
+            feedback.style.color = '#2e7d32';
+            return;
+        }
+        isReviewMode = true;
+        reviewWords = wrongs.map(w => ({ en: w.en, zh: w.zh, phonetic: w.phonetic || '', mastered: false }));
+        currentReviewIndex = 0;
+        if (!isQuizMode) {
+            isQuizMode = true;
+            browseMode.classList.add('hidden');
+            quizMode.classList.remove('hidden');
+        }
+        renderGroupNav();
+        renderProgress();
+        renderQuizMode();
+        renderBrowseMode();
+    }
+
+    function clearWrongWords() {
+        if (confirm('确定清空错词本吗？')) {
+            saveWrongWords([]);
+            renderWrongWords();
+            renderProgress();
+            feedback.textContent = '🗑️ 错词本已清空';
+            feedback.style.color = '#4a6a8a';
+        }
+    }
+
+    function resetAll() {
+        if (confirm('重置所有学习进度？（单词数据不会丢失）')) {
+            for (const w of allWords) w.mastered = false;
+            saveProgress({});
+            saveWrongWords([]);
+            saveData(allWords);
+            currentWordIndex = 0;
+            isReviewMode = false;
+            currentReviewIndex = 0;
+            renderAll();
+            renderWrongWords();
+            renderProgress();
+            renderBrowseMode();
+            if (isQuizMode) renderQuizMode();
+            feedback.textContent = '🔄 已重置所有进度';
+            feedback.style.color = '#4a6a8a';
+        }
+    }
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.mode === mode);
+        });
+        renderQuizMode();
+    }
+
+    function enterQuiz() {
+        const words = getCurrentGroupWords();
+        if (words.length === 0) {
+            alert('当前组没有单词，请先上传或切换分组');
+            return;
+        }
+        isQuizMode = true;
+        browseMode.classList.add('hidden');
+        quizMode.classList.remove('hidden');
+        currentWordIndex = 0;
+        if (isReviewMode) currentReviewIndex = 0;
+        renderQuizMode();
+        renderProgress();
+    }
+
+    function backToBrowse() {
+        isQuizMode = false;
+        quizMode.classList.add('hidden');
+        browseMode.classList.remove('hidden');
+        if (isReviewMode) {
+            isReviewMode = false;
+            currentReviewIndex = 0;
+            renderGroupNav();
+        }
+        renderBrowseMode();
+        renderProgress();
+        replayBtn.style.display = 'none';
+    }
+
+    function parseExcelFile(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const json = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
+                    const parsed = [];
+                    for (const row of json) {
+                        if (!row || row.length < 1) continue;
+                        const en = String(row[0] || '').trim();
+                        const phonetic = String(row[1] || '').trim();
+                        const zh = String(row[2] || '').trim();
+                        if (en && zh) {
+                            parsed.push({ en, phonetic, zh, mastered: false });
+                        }
+                    }
+                    resolve(parsed);
+                } catch(err) { reject(err); }
+            };
+            reader.onerror = reject;
+            reader.readAsArrayBuffer(file);
+        });
+    }
+
+    async function loadWordListFromFile(file) {
+        if (!file) return;
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (!['xlsx', 'xls'].includes(ext)) {
+            alert('请上传 .xlsx 或 .xls 文件');
+            return;
+        }
+        try {
+            const list = await parseExcelFile(file);
+            if (!list || list.length === 0) {
+                alert('未读取到有效单词 (A列英文, B列音标, C列中文)');
+                return;
+            }
+            applyWordList(list);
+            fileStatus.textContent = `✅ ${file.name} (${allWords.length} 词)`;
+            feedback.textContent = `📚 已加载 ${allWords.length} 个单词`;
+            feedback.style.color = '#1a2a4a';
+        } catch(err) {
+            alert('解析失败: ' + err.message);
+        }
+    }
+
+    function applyWordList(list) {
+        allWords = list;
+        const progress = loadProgress();
+        for (const w of allWords) {
+            if (progress[w.en] === true) w.mastered = true;
+        }
+        saveData(allWords);
+        currentGroupIndex = 0;
+        currentWordIndex = 0;
+        isReviewMode = false;
+        currentReviewIndex = 0;
+        if (isQuizMode) backToBrowse();
+        renderAll();
+        renderWrongWords();
+        renderProgress();
+        renderBrowseMode();
+    }
+
+    function restoreFromStorage() {
+        const saved = loadData();
+        if (saved && Array.isArray(saved) && saved.length > 0) {
+            allWords = saved;
+            const progress = loadProgress();
+            for (const w of allWords) {
+                if (progress[w.en] === true) w.mastered = true;
+            }
+            currentGroupIndex = 0;
+            currentWordIndex = 0;
+            isReviewMode = false;
+            currentReviewIndex = 0;
+            fileStatus.textContent = `✅ 已从本地恢复 (${allWords.length} 词)`;
+            renderAll();
+            renderWrongWords();
+            renderProgress();
+            renderBrowseMode();
+            feedback.textContent = `📚 已自动加载上次的词库 (${allWords.length} 个单词)`;
+            feedback.style.color = '#1a2a4a';
+            return true;
+        }
+        return false;
+    }
+
+    function renderAll() {
+        renderGroupNav();
+        renderProgress();
+        renderBrowseMode();
+        if (isQuizMode) renderQuizMode();
+    }
+
+    uploadArea.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files[0]) {
+            loadWordListFromFile(e.target.files[0]);
+        }
+        fileInput.value = '';
+    });
+    uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.style.borderColor = '#4a7cf7'; });
+    uploadArea.addEventListener('dragleave', () => { uploadArea.style.borderColor = '#c5d8f0'; });
+    uploadArea.addEventListener('drop', e => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#c5d8f0';
+        if (e.dataTransfer.files[0]) {
+            loadWordListFromFile(e.dataTransfer.files[0]);
+        }
+    });
+
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', function() { setMode(this.dataset.mode); });
+    });
+
+    enterQuizBtn.addEventListener('click', enterQuiz);
+    backToBrowseBtn.addEventListener('click', backToBrowse);
+    submitBtn.addEventListener('click', handleSubmit);
+    nextBtn.addEventListener('click', moveNext);
+    startBtn.addEventListener('click', startGroup);
+    clearWrongBtn.addEventListener('click', clearWrongWords);
+    reviewWrongBtn.addEventListener('click', reviewWrongWords);
+    resetAllBtn.addEventListener('click', resetAll);
+
+    quizInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (!submitBtn.disabled) submitBtn.click();
+        }
+    });
+
+    if (window.speechSynthesis) {
+        setTimeout(() => window.speechSynthesis.getVoices(), 400);
+    }
+
+    const hasRestored = restoreFromStorage();
+    if (!hasRestored) {
+        renderAll();
+        renderWrongWords();
+        renderProgress();
+        quizPrompt.textContent = '📤 请上传单词表';
+        quizHint.textContent = '支持 .xlsx 格式 (A列英文, B列音标, C列中文)';
+    }
+    console.log('📘 我爱背单词 已启动');
+})();
+</script>
+</body>
+</html>
