@@ -16,7 +16,7 @@
             justify-content: center;
         }
         .app {
-            max-width: 880px;
+            max-width: 920px;
             width: 100%;
             background: #ffffff;
             border-radius: 40px;
@@ -84,6 +84,12 @@
         .btn-secondary:hover { background: #dce6f5; }
         .btn-danger-sm { background: #ffebee; color: #c62828; border: none; padding: 2px 10px; border-radius: 20px; font-size: 0.7rem; cursor: pointer; }
         .btn-danger-sm:hover { background: #ffcdd2; }
+        .btn-sm { padding: 4px 14px; font-size: 0.75rem; border-radius: 30px; border: none; cursor: pointer; background: #eef2f9; }
+        .btn-sm:hover { background: #dce6f5; }
+        .btn-mic { background: #4a7cf7; color: white; border: none; padding: 10px 16px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
+        .btn-mic:hover { background: #3a6ae0; }
+        .btn-mic.listening { background: #e53935; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
         .subhead { color: #4a5f7a; font-size: 0.9rem; margin-bottom: 16px; padding-left: 12px; border-left: 4px solid #4a7cf7; }
 
         /* 词库列表 */
@@ -99,12 +105,7 @@
             min-height: 44px;
             align-items: center;
         }
-        .library-label {
-            font-size: 0.75rem;
-            color: #6a7f9f;
-            font-weight: 500;
-            margin-right: 4px;
-        }
+        .library-label { font-size: 0.75rem; color: #6a7f9f; font-weight: 500; margin-right: 4px; }
         .lib-item {
             display: inline-flex;
             align-items: center;
@@ -119,25 +120,14 @@
             box-shadow: 0 1px 4px rgba(0,0,0,0.04);
         }
         .lib-item:hover { border-color: #b0c8e8; }
-        .lib-item.active {
-            border-color: #4a7cf7;
-            background: #e3edfe;
-            font-weight: 500;
-        }
+        .lib-item.active { border-color: #4a7cf7; background: #e3edfe; font-weight: 500; }
         .lib-item .name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .lib-item .count { color: #4a7cf7; font-weight: 600; font-size: 0.7rem; }
-        .lib-item .del-btn {
-            background: none;
-            border: none;
-            color: #b0b8c8;
-            cursor: pointer;
-            font-size: 0.8rem;
-            padding: 0 2px;
-            line-height: 1;
-        }
+        .lib-item .del-btn { background: none; border: none; color: #b0b8c8; cursor: pointer; font-size: 0.8rem; padding: 0 2px; line-height: 1; }
         .lib-item .del-btn:hover { color: #c62828; }
         .lib-empty { color: #8a9fb0; font-size: 0.85rem; padding: 4px 0; }
 
+        /* 统计行 */
         .stats-bar {
             display: flex; flex-wrap: wrap; gap: 8px 16px;
             background: #eef4fc; padding: 10px 18px; border-radius: 40px;
@@ -146,6 +136,32 @@
         }
         .stats-bar .badge { background: #d2def5; padding: 2px 16px; border-radius: 30px; font-weight: 500; }
         .stats-bar .wrong-badge { background: #ffebee; color: #b71c1c; padding: 2px 16px; border-radius: 30px; font-weight: 500; cursor: pointer; }
+
+        /* 学习统计 */
+        .stats-grid {
+            display: flex; flex-wrap: wrap; gap: 12px 24px;
+            background: #f8fbff; padding: 12px 18px; border-radius: 24px;
+            margin-bottom: 12px; border: 1px solid #e6edf6;
+            font-size: 0.85rem; color: #1f2f4a;
+            align-items: center;
+        }
+        .stats-grid .item { display: flex; align-items: center; gap: 6px; }
+        .stats-grid .num { font-weight: 700; color: #1a2a4a; font-size: 1.1rem; }
+
+        /* 搜索 */
+        .search-row {
+            display: flex; gap: 8px; margin-bottom: 12px; align-items: center;
+        }
+        .search-input {
+            flex: 1; padding: 8px 16px; border-radius: 30px; border: 2px solid #dce6f5;
+            font-size: 0.9rem; outline: none; min-width: 120px;
+        }
+        .search-input:focus { border-color: #4a7cf7; }
+        .search-result { margin-bottom: 12px; padding: 12px 16px; background: #e8f0fe; border-radius: 16px; display: none; font-size: 0.95rem; }
+        .search-result .sr-en { font-weight: 600; font-size: 1.1rem; }
+        .search-result .sr-ph { color: #4a6a8a; }
+        .search-result .sr-zh { color: #1f2f4a; }
+
         .group-nav {
             display: flex; flex-wrap: wrap; gap: 8px;
             margin: 12px 0 16px;
@@ -165,9 +181,8 @@
         .progress-bar {
             flex: 1; height: 8px; background: #e0e8f2; border-radius: 20px; overflow: hidden;
         }
-        .progress-fill {
-            height: 100%; width: 0%; background: #4a7cf7; border-radius: 20px; transition: width 0.3s;
-        }
+        .progress-fill { height: 100%; width: 0%; background: #4a7cf7; border-radius: 20px; transition: width 0.3s; }
+
         .word-list {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
@@ -184,50 +199,16 @@
             position: relative;
             transition: 0.15s;
         }
-        .word-item .word-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .word-item .en {
-            font-size: 1.15rem;
-            font-weight: 600;
-            color: #0a1a38;
-        }
-        .word-item .speak-btn {
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 30px;
-            transition: 0.15s;
-            opacity: 0.7;
-        }
-        .word-item .speak-btn:hover {
-            background: #e6edf6;
-            opacity: 1;
-        }
-        .word-item .phonetic {
-            font-size: 0.85rem;
-            color: #4a6a8a;
-            margin-top: 2px;
-            font-family: 'Times New Roman', 'IPA', serif;
-        }
-        .word-item .zh {
-            font-size: 0.9rem;
-            color: #1f2f4a;
-            margin-top: 2px;
-        }
-        .word-item .status {
-            font-size: 0.7rem;
-            color: #2e7d32;
-            margin-top: 6px;
-        }
-        .word-item.mastered {
-            background: #e8f5e9;
-            border-color: #a5d6a7;
-        }
+        .word-item .word-row { display: flex; justify-content: space-between; align-items: center; }
+        .word-item .en { font-size: 1.15rem; font-weight: 600; color: #0a1a38; }
+        .word-item .speak-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 4px 8px; border-radius: 30px; transition: 0.15s; opacity: 0.7; }
+        .word-item .speak-btn:hover { background: #e6edf6; opacity: 1; }
+        .word-item .phonetic { font-size: 0.85rem; color: #4a6a8a; margin-top: 2px; font-family: 'Times New Roman', 'IPA', serif; }
+        .word-item .zh { font-size: 0.9rem; color: #1f2f4a; margin-top: 2px; }
+        .word-item .status { font-size: 0.7rem; color: #2e7d32; margin-top: 6px; }
+        .word-item.mastered { background: #e8f5e9; border-color: #a5d6a7; }
+        .word-item .ai-example { font-size: 0.8rem; color: #4a6a8a; margin-top: 6px; background: #f0f4fa; padding: 6px 10px; border-radius: 12px; border-left: 3px solid #4a7cf7; }
+
         .quiz-area {
             background: #f8fbff;
             border-radius: 32px;
@@ -239,12 +220,12 @@
         .quiz-prompt { font-size: 1.8rem; font-weight: 600; color: #0a1a38; margin-bottom: 4px; }
         .quiz-hint { font-size: 1rem; color: #4a6a8a; }
         .quiz-input {
-            width: 80%; max-width: 300px; padding: 12px 20px; font-size: 1.2rem;
+            width: 70%; max-width: 280px; padding: 12px 20px; font-size: 1.2rem;
             border: 2px solid #d0dcee; border-radius: 60px; margin: 16px 0 12px;
             outline: none; text-align: center;
         }
         .quiz-input:focus { border-color: #4a7cf7; }
-        .quiz-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; align-items: center; }
+        .quiz-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; align-items: center; }
         .btn-primary { background: #1a2a4a; color: white; border: none; padding: 10px 32px; border-radius: 60px; font-weight: 600; cursor: pointer; font-size: 1rem; }
         .btn-primary:hover { background: #2a3a5a; }
         .btn-outline { background: transparent; border: 2px solid #4a7cf7; color: #1a2a4a; padding: 8px 20px; border-radius: 60px; font-weight: 500; cursor: pointer; font-size: 0.95rem; }
@@ -275,6 +256,8 @@
         .flex-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
         .hidden { display: none !important; }
         .mb-8 { margin-bottom: 8px; }
+        .mt-8 { margin-top: 8px; }
+        .gap-8 { gap: 8px; }
         .footer {
             margin-top: 28px;
             padding-top: 16px;
@@ -283,13 +266,15 @@
             font-size: 0.8rem;
             color: #8a9fb0;
         }
+        .flex-center { display: flex; align-items: center; gap: 8px; justify-content: center; flex-wrap: wrap; }
         @media (max-width: 480px) {
             .app { padding: 18px 14px; }
             .quiz-prompt { font-size: 1.4rem; }
-            .word-list { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+            .word-list { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
             .header-row { flex-direction: column; }
             .header-right { justify-content: flex-end; }
             .lib-item .name { max-width: 80px; }
+            .stats-grid { font-size: 0.75rem; gap: 8px 16px; }
         }
     </style>
 </head>
@@ -301,7 +286,6 @@
             <div class="header-top">
                 <h1>📘 英语考100</h1>
             </div>
-            <!-- 词库列表 -->
             <div class="library-container" id="libraryContainer">
                 <span class="library-label">📚 词库</span>
                 <span class="lib-empty" id="libEmpty">暂无词库，点击右上角上传</span>
@@ -315,7 +299,23 @@
             </span>
         </div>
     </div>
-    <div class="subhead">📂 点击词库切换 · 点击 🔊 发音 · 支持多个词库</div>
+    <div class="subhead">📂 点击词库切换 · 支持搜索 · AI例句 · 语音听写</div>
+
+    <!-- 学习统计 -->
+    <div class="stats-grid" id="statsGrid">
+        <span class="item">📅 连续打卡 <span class="num" id="streakDays">0</span> 天</span>
+        <span class="item">📖 今日 <span class="num" id="todayLearned">0</span> 词</span>
+        <span class="item">🎯 正确率 <span class="num" id="todayAccuracy">0</span>%</span>
+        <button class="btn-sm" id="resetStatsBtn">重置统计</button>
+    </div>
+
+    <!-- 搜索 -->
+    <div class="search-row">
+        <input class="search-input" id="searchInput" placeholder="🔍 搜索单词..." />
+        <button class="btn-secondary" id="searchBtn">搜索</button>
+        <button class="btn-secondary" id="clearSearchBtn">清除</button>
+    </div>
+    <div class="search-result" id="searchResult"></div>
 
     <div class="stats-bar" id="statsBar">
         <span>📚 <span id="wordCount">0</span> 词</span>
@@ -327,7 +327,6 @@
     </div>
 
     <div class="group-nav" id="groupNav"></div>
-
     <div class="progress-wrap" id="progressWrap">
         <span style="font-size:0.85rem; color:#3a5a7a;" id="groupLabel">第 1 组</span>
         <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
@@ -347,13 +346,18 @@
             <button class="mode-btn active" data-mode="zh2en">📝 中文→英文</button>
             <button class="mode-btn" data-mode="phonetic2en">🔊 音标→英文</button>
             <button class="mode-btn" data-mode="listen2en">🎧 听音→拼写</button>
+            <button class="mode-btn" data-mode="voice2en">🎤 语音听写</button>
         </div>
         <div class="quiz-area">
             <div class="quiz-prompt" id="quizPrompt">准备开始</div>
             <div class="quiz-hint" id="quizHint">点击下方“开始背诵”</div>
-            <input class="quiz-input" id="quizInput" placeholder="输入英文" autocomplete="off">
+            <div class="flex-center">
+                <input class="quiz-input" id="quizInput" placeholder="输入英文" autocomplete="off">
+                <button class="btn-mic" id="micBtn" title="点击麦克风语音输入">🎤</button>
+            </div>
             <div style="margin-bottom: 10px;">
                 <button class="btn-outline" id="replayBtn" style="display:none;">🔊 重播读音</button>
+                <button class="btn-outline" id="aiExampleBtn" style="display:none;">🤖 AI例句</button>
             </div>
             <div class="quiz-actions">
                 <button class="btn-primary" id="submitBtn">确认</button>
@@ -361,6 +365,7 @@
                 <button class="btn-secondary" id="nextBtn">下一词</button>
             </div>
             <div class="result-feedback" id="feedback"></div>
+            <div id="aiExampleDisplay" style="margin-top:8px;font-size:0.9rem;color:#4a6a8a;background:#f0f4fa;padding:8px 14px;border-radius:16px;display:none;"></div>
             <div style="margin-top:6px;font-size:0.85rem;color:#6a7f9f;">
                 进度: <span id="currentIndexSpan">0</span> / <span id="totalInGroupSpan">0</span>
             </div>
@@ -375,15 +380,15 @@
     </div>
 
     <div class="footer">
-        © 2026 英语考100 · 自用学习工具 · 数据仅保存在本地浏览器
+        © 2026 英语考100 · 自用学习工具 · AI例句需配置API密钥
     </div>
 </div>
 
 <script>
 (function(){
     // ----- 数据结构 -----
-    let library = [];              // [{ id, name, words: [{en, phonetic, zh, mastered}] }]
-    let currentLibId = null;      // 当前使用的词库ID
+    let library = [];
+    let currentLibId = null;
     let currentGroupIndex = 0;
     let currentWordIndex = 0;
     let currentMode = 'zh2en';
@@ -395,11 +400,22 @@
     let savedGroupIndex = 0;
     let savedWordIndex = 0;
 
+    // 统计相关
+    let stats = { streak: 0, todayLearned: 0, todayCorrect: 0, todayWrong: 0, lastDate: '' };
+    let isFirstLoadToday = true;
+
     const GROUP_SIZE = 50;
     const STORAGE_KEY_LIBRARY = 'wordPro_library';
     const STORAGE_KEY_CURRENT = 'wordPro_currentLib';
     const STORAGE_KEY_PROGRESS = 'wordPro_progress';
     const STORAGE_KEY_WRONG = 'wordPro_wrong';
+    const STORAGE_KEY_STATS = 'wordPro_stats';
+
+    // ----- AI 配置 (请替换为你的 API 密钥) -----
+    // 推荐使用 DeepSeek 或 SiliconFlow，免费额度足够个人使用
+    const AI_API_KEY = '';  // 在这里填入你的 API Key
+    const AI_API_URL = 'https://api.siliconflow.cn/v1/chat/completions';  // SiliconFlow 示例
+    // 如果用 DeepSeek: https://api.deepseek.com/v1/chat/completions
 
     const $ = id => document.getElementById(id);
     const fileInput = $('fileInput');
@@ -433,6 +449,94 @@
     const reviewWrongBtn = $('reviewWrongBtn');
     const resetAllBtn = $('resetAllBtn');
     const replayBtn = $('replayBtn');
+    const aiExampleBtn = $('aiExampleBtn');
+    const aiExampleDisplay = $('aiExampleDisplay');
+    const micBtn = $('micBtn');
+    const searchInput = $('searchInput');
+    const searchBtn = $('searchBtn');
+    const clearSearchBtn = $('clearSearchBtn');
+    const searchResult = $('searchResult');
+    const streakDays = $('streakDays');
+    const todayLearned = $('todayLearned');
+    const todayAccuracy = $('todayAccuracy');
+    const resetStatsBtn = $('resetStatsBtn');
+
+    // ----- 语音识别 -----
+    let recognition = null;
+    let isListening = false;
+
+    function initSpeechRecognition() {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            micBtn.style.display = 'none';
+            return;
+        }
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript.trim();
+            quizInput.value = transcript;
+            micBtn.classList.remove('listening');
+            isListening = false;
+            micBtn.textContent = '🎤';
+            feedback.textContent = '🎤 已识别: "' + transcript + '"';
+            feedback.style.color = '#1a2a4a';
+            // 自动提交
+            setTimeout(() => { if (!submitBtn.disabled) submitBtn.click(); }, 300);
+        };
+        recognition.onerror = function(event) {
+            micBtn.classList.remove('listening');
+            isListening = false;
+            micBtn.textContent = '🎤';
+            feedback.textContent = '⚠️ 语音识别失败: ' + event.error;
+            feedback.style.color = '#f57c00';
+        };
+        recognition.onend = function() {
+            micBtn.classList.remove('listening');
+            isListening = false;
+            micBtn.textContent = '🎤';
+        };
+    }
+
+    micBtn.addEventListener('click', function() {
+        if (!recognition) {
+            alert('语音识别仅支持 Chrome 浏览器，请使用 Chrome 访问');
+            return;
+        }
+        if (isListening) {
+            recognition.stop();
+            micBtn.classList.remove('listening');
+            isListening = false;
+            micBtn.textContent = '🎤';
+            return;
+        }
+        // 检查当前是否是语音模式
+        if (currentMode !== 'voice2en') {
+            feedback.textContent = '⚠️ 请先切换到 "语音听写" 模式';
+            feedback.style.color = '#f57c00';
+            return;
+        }
+        try {
+            recognition.start();
+            isListening = true;
+            micBtn.classList.add('listening');
+            micBtn.textContent = '🔴';
+            feedback.textContent = '🎤 请说出单词...';
+            feedback.style.color = '#4a7cf7';
+        } catch(e) {
+            // 如果已经在运行，先停止再启动
+            try { recognition.stop(); } catch(ex) {}
+            setTimeout(() => {
+                recognition.start();
+                isListening = true;
+                micBtn.classList.add('listening');
+                micBtn.textContent = '🔴';
+            }, 200);
+        }
+    });
 
     // ----- 存储函数 -----
     function loadLibrary() {
@@ -464,6 +568,161 @@
         localStorage.setItem(STORAGE_KEY_WRONG + '_' + libId, JSON.stringify(wrongList));
     }
 
+    // ----- 统计函数 -----
+    function loadStats() {
+        try { const raw = localStorage.getItem(STORAGE_KEY_STATS); if (raw) return JSON.parse(raw); } catch(e) {}
+        return { streak: 0, todayLearned: 0, todayCorrect: 0, todayWrong: 0, lastDate: '' };
+    }
+    function saveStats(s) {
+        localStorage.setItem(STORAGE_KEY_STATS, JSON.stringify(s));
+    }
+
+    function updateStats() {
+        stats = loadStats();
+        const today = new Date().toDateString();
+        if (stats.lastDate !== today) {
+            // 新的一天
+            if (stats.lastDate) {
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                if (stats.lastDate === yesterday.toDateString() && stats.todayLearned > 0) {
+                    stats.streak += 1;
+                } else if (stats.todayLearned === 0) {
+                    // 如果今天还没学，不重置连续天数，等学了再更新
+                }
+            } else {
+                stats.streak = 0;
+            }
+            // 重置今日数据
+            stats.todayLearned = 0;
+            stats.todayCorrect = 0;
+            stats.todayWrong = 0;
+            stats.lastDate = today;
+            saveStats(stats);
+        }
+        renderStats();
+    }
+
+    function renderStats() {
+        stats = loadStats();
+        streakDays.textContent = stats.streak;
+        todayLearned.textContent = stats.todayLearned;
+        const total = stats.todayCorrect + stats.todayWrong;
+        const acc = total > 0 ? Math.round((stats.todayCorrect / total) * 100) : 0;
+        todayAccuracy.textContent = acc;
+    }
+
+    function recordAnswer(isCorrect) {
+        stats = loadStats();
+        const today = new Date().toDateString();
+        if (stats.lastDate !== today) {
+            stats.lastDate = today;
+            stats.todayLearned = 0;
+            stats.todayCorrect = 0;
+            stats.todayWrong = 0;
+            if (stats.todayLearned === 0 && stats.streak > 0) {
+                // 保持连续天数
+            }
+        }
+        stats.todayLearned += 1;
+        if (isCorrect) stats.todayCorrect += 1;
+        else stats.todayWrong += 1;
+        saveStats(stats);
+        renderStats();
+    }
+
+    function resetStats() {
+        if (confirm('确定重置所有学习统计数据吗？')) {
+            stats = { streak: 0, todayLearned: 0, todayCorrect: 0, todayWrong: 0, lastDate: '' };
+            saveStats(stats);
+            renderStats();
+            feedback.textContent = '📊 统计已重置';
+            feedback.style.color = '#4a6a8a';
+        }
+    }
+
+    // ----- AI 生成例句 -----
+    async function fetchAIExample(word) {
+        if (!AI_API_KEY) {
+            return '⚠️ 请配置 AI_API_KEY（在代码顶部）';
+        }
+        try {
+            const response = await fetch(AI_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + AI_API_KEY
+                },
+                body: JSON.stringify({
+                    model: 'Qwen/Qwen2.5-7B-Instruct',
+                    messages: [
+                        { role: 'system', content: '你是一个英语学习助手。请为给定的单词生成一个简单易懂的英文例句，并附上中文翻译。格式：英文例句（中文翻译）。只输出这一句，不要其他内容。' },
+                        { role: 'user', content: '单词: ' + word }
+                    ],
+                    max_tokens: 150,
+                    temperature: 0.7
+                })
+            });
+            if (!response.ok) {
+                return '⚠️ API 请求失败 (请检查密钥或网络)';
+            }
+            const data = await response.json();
+            return data.choices?.[0]?.message?.content || '⚠️ 未获取到例句';
+        } catch(e) {
+            return '⚠️ 请求出错: ' + e.message;
+        }
+    }
+
+    aiExampleBtn.addEventListener('click', async function() {
+        const words = getCurrentWords();
+        if (!words || words.length === 0) return;
+        let idx = isReviewMode ? currentReviewIndex : currentWordIndex;
+        if (idx >= words.length) return;
+        const word = words[idx];
+        aiExampleDisplay.style.display = 'block';
+        aiExampleDisplay.textContent = '⏳ 生成例句中...';
+        const result = await fetchAIExample(word.en);
+        aiExampleDisplay.textContent = '💡 ' + result;
+        // 保存到单词对象方便下次显示
+        word.aiExample = result;
+    });
+
+    // ----- 搜索功能 -----
+    function searchWord(query) {
+        const lib = library.find(l => l.id === currentLibId);
+        if (!lib || !query.trim()) {
+            searchResult.style.display = 'none';
+            return;
+        }
+        const q = query.trim().toLowerCase();
+        const found = lib.words.find(w => w.en.toLowerCase() === q || w.zh.includes(q));
+        if (found) {
+            searchResult.style.display = 'block';
+            searchResult.innerHTML = `
+                <span class="sr-en">${found.en}</span>
+                <span class="sr-ph">${found.phonetic || ''}</span>
+                <span class="sr-zh">${found.zh}</span>
+                ${found.mastered ? ' ✅ 已掌握' : ' 📖 学习中'}
+                <button class="btn-sm" onclick="window._speakWord('${found.en.replace(/'/g, "\\'")}')">🔊 发音</button>
+            `;
+        } else {
+            searchResult.style.display = 'block';
+            searchResult.innerHTML = '❌ 未找到该单词';
+        }
+    }
+
+    searchBtn.addEventListener('click', function() {
+        searchWord(searchInput.value);
+    });
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') searchWord(searchInput.value);
+    });
+    clearSearchBtn.addEventListener('click', function() {
+        searchInput.value = '';
+        searchResult.style.display = 'none';
+    });
+
+    // ----- 核心函数 -----
     function getCurrentWords() {
         if (isReviewMode) return reviewWords;
         const lib = library.find(l => l.id === currentLibId);
@@ -489,8 +748,9 @@
         if (enVoice) u.voice = enVoice;
         window.speechSynthesis.speak(u);
     }
+    window._speakWord = speakWord;
 
-    // ----- 渲染词库列表 -----
+    // ----- 渲染函数 (略, 保留核心逻辑) -----
     function renderLibrary() {
         if (library.length === 0) {
             libraryContainer.innerHTML = `<span class="library-label">📚 词库</span><span class="lib-empty">暂无词库，点击右上角上传</span>`;
@@ -509,31 +769,22 @@
             `;
         }
         libraryContainer.innerHTML = html;
-
-        // 点击词库切换
         libraryContainer.querySelectorAll('.lib-item').forEach(el => {
             el.addEventListener('click', function(e) {
                 if (e.target.classList.contains('del-btn')) return;
                 const id = this.dataset.id;
-                if (id && id !== currentLibId) {
-                    switchLibrary(id);
-                }
+                if (id && id !== currentLibId) switchLibrary(id);
             });
         });
-
-        // 删除词库
         libraryContainer.querySelectorAll('.del-btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 const id = this.dataset.id;
-                if (id && confirm('确定删除这个词库吗？')) {
-                    deleteLibrary(id);
-                }
+                if (id && confirm('确定删除这个词库吗？')) deleteLibrary(id);
             });
         });
     }
 
-    // ----- 切换词库 -----
     function switchLibrary(id) {
         const lib = library.find(l => l.id === id);
         if (!lib) return;
@@ -550,20 +801,15 @@
         }
         renderAll();
         renderLibrary();
+        searchResult.style.display = 'none';
     }
 
-    // ----- 删除词库 -----
     function deleteLibrary(id) {
         library = library.filter(l => l.id !== id);
         saveLibrary(library);
         if (currentLibId === id) {
-            if (library.length > 0) {
-                currentLibId = library[0].id;
-                saveCurrentLibId(currentLibId);
-            } else {
-                currentLibId = null;
-                saveCurrentLibId(null);
-            }
+            if (library.length > 0) { currentLibId = library[0].id; saveCurrentLibId(currentLibId); }
+            else { currentLibId = null; saveCurrentLibId(null); }
         }
         renderAll();
         renderLibrary();
@@ -571,14 +817,12 @@
             quizPrompt.textContent = '📤 请上传词库';
             quizHint.textContent = '点击右上角 "上传词库" 按钮';
         }
+        searchResult.style.display = 'none';
     }
 
-    // ----- 添加词库 -----
     function addLibrary(name, words) {
-        // 检查是否已存在同名词库
         const existing = library.find(l => l.name === name);
         if (existing) {
-            // 同名则覆盖
             existing.words = words;
         } else {
             const id = 'lib_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
@@ -593,9 +837,11 @@
         currentReviewIndex = 0;
         renderAll();
         renderLibrary();
+        searchResult.style.display = 'none';
+        // 更新统计
+        updateStats();
     }
 
-    // ----- 解析Excel -----
     function parseExcelFile(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -611,9 +857,7 @@
                         const en = String(row[0] || '').trim();
                         const phonetic = String(row[1] || '').trim();
                         const zh = String(row[2] || '').trim();
-                        if (en && zh) {
-                            parsed.push({ en, phonetic, zh, mastered: false });
-                        }
+                        if (en && zh) parsed.push({ en, phonetic, zh, mastered: false });
                     }
                     resolve(parsed);
                 } catch(err) { reject(err); }
@@ -637,7 +881,6 @@
                     alert('未读取到有效单词: ' + file.name);
                     continue;
                 }
-                // 加载已有进度
                 const progress = loadProgress(currentLibId);
                 for (const w of list) {
                     if (progress[w.en] === true) w.mastered = true;
@@ -649,9 +892,10 @@
                 alert('解析失败: ' + file.name + '\n' + err.message);
             }
         }
+        updateStats();
     }
 
-    // ----- 渲染函数 -----
+    // ----- 渲染 (精简版) -----
     function renderBrowseMode() {
         const words = getCurrentWords();
         if (words.length === 0) {
@@ -663,6 +907,7 @@
             const mastered = w.mastered ? '✅' : '⬜';
             const cls = w.mastered ? 'word-item mastered' : 'word-item';
             const phoneticDisplay = w.phonetic || '';
+            const example = w.aiExample ? `<div class="ai-example">💡 ${w.aiExample}</div>` : '';
             html += `
                 <div class="${cls}" data-en="${w.en}">
                     <div class="word-row">
@@ -672,12 +917,12 @@
                     ${phoneticDisplay ? `<div class="phonetic">${phoneticDisplay}</div>` : ''}
                     <div class="zh">${w.zh || ''}</div>
                     <div class="status">${mastered} ${w.mastered ? '已掌握' : '学习中'}</div>
+                    ${example}
                 </div>
             `;
         }
         wordListEl.innerHTML = html;
     }
-    window._speakWord = function(word) { speakWord(word); };
 
     function renderGroupNav() {
         const lib = library.find(l => l.id === currentLibId);
@@ -699,10 +944,7 @@
                     isReviewMode = false;
                     currentGroupIndex = group;
                     currentWordIndex = 0;
-                    if (isQuizMode) {
-                        currentWordIndex = 0;
-                        renderQuizMode();
-                    }
+                    if (isQuizMode) { currentWordIndex = 0; renderQuizMode(); }
                     renderAll();
                 }
             });
@@ -729,12 +971,10 @@
         progressText.textContent = `${mastered}/${total}`;
         const groupNum = isReviewMode ? '错词复习' : `第${currentGroupIndex+1}组`;
         groupLabel.textContent = groupNum;
-
         wordCountSpan.textContent = lib.words.length;
         const totalMastered = lib.words.filter(w => w.mastered).length;
         const totalPct = lib.words.length > 0 ? Math.round((totalMastered/lib.words.length)*100) : 0;
         progressBadge.textContent = `✅ ${totalPct}%`;
-
         const wrongs = loadWrongWords(currentLibId);
         wrongBadge.textContent = `❌ 错词 ${wrongs.length}`;
     }
@@ -761,6 +1001,8 @@
             quizInput.disabled = true;
             submitBtn.disabled = true;
             replayBtn.style.display = 'none';
+            aiExampleBtn.style.display = 'none';
+            aiExampleDisplay.style.display = 'none';
             return;
         }
         let idx = isReviewMode ? currentReviewIndex : currentWordIndex;
@@ -770,6 +1012,8 @@
             quizInput.disabled = true;
             submitBtn.disabled = true;
             replayBtn.style.display = 'none';
+            aiExampleBtn.style.display = 'none';
+            aiExampleDisplay.style.display = 'none';
             return;
         }
         const word = words[idx];
@@ -779,21 +1023,37 @@
         quizInput.value = '';
         feedback.textContent = '';
         quizInput.focus();
+        aiExampleDisplay.style.display = 'none';
+
+        // 显示 AI 例句按钮
+        aiExampleBtn.style.display = 'inline-block';
 
         if (currentMode === 'zh2en') {
             quizPrompt.textContent = word.zh || '（无释义）';
             quizHint.textContent = `💡 输入对应的英文 (${idx+1}/${words.length})`;
             replayBtn.style.display = 'none';
+            micBtn.style.display = 'none';
+            quizInput.placeholder = '输入英文';
         } else if (currentMode === 'phonetic2en') {
             quizPrompt.textContent = word.phonetic || '（无音标）';
             quizHint.textContent = `🔊 根据音标输入英文`;
             replayBtn.style.display = 'none';
+            micBtn.style.display = 'none';
+            quizInput.placeholder = '输入英文';
         } else if (currentMode === 'listen2en') {
             quizPrompt.textContent = '🎧 请听读音，输入英文';
             quizHint.textContent = `点击 "重播读音" 可反复听 (${idx+1}/${words.length})`;
             setTimeout(() => speakWord(word.en), 300);
             replayBtn.style.display = 'inline-block';
             replayBtn.textContent = '🔊 重播读音';
+            micBtn.style.display = 'none';
+            quizInput.placeholder = '输入英文';
+        } else if (currentMode === 'voice2en') {
+            quizPrompt.textContent = word.zh || '（无释义）';
+            quizHint.textContent = `🎤 点击麦克风说出英文 (${idx+1}/${words.length})`;
+            replayBtn.style.display = 'none';
+            micBtn.style.display = 'inline-block';
+            quizInput.placeholder = '或手动输入英文';
         }
         currentIndexSpan.textContent = idx + 1;
         totalInGroupSpan.textContent = words.length;
@@ -801,14 +1061,7 @@
         quizGroupLabel.textContent = isReviewMode ? '错词复习' : (lib ? `${lib.name} · 第${currentGroupIndex+1}组` : '');
     }
 
-    replayBtn.addEventListener('click', function() {
-        if (currentWordForReplay) {
-            speakWord(currentWordForReplay);
-            this.textContent = '✅ 已重播';
-            setTimeout(() => { this.textContent = '🔊 重播读音'; }, 800);
-        }
-    });
-
+    // 提交, 上一词, 下一词 (关键函数)
     function handleSubmit() {
         const words = getCurrentWords();
         if (!words || words.length === 0) return;
@@ -839,6 +1092,7 @@
                 saveProgress(currentLibId, progress);
                 saveLibrary(library);
             }
+            recordAnswer(true);
         } else {
             feedback.textContent = `❌ 错误，正确答案: ${word.en}`;
             feedback.style.color = '#c62828';
@@ -848,6 +1102,7 @@
                 saveWrongWords(currentLibId, wrongs);
                 renderWrongWords();
             }
+            recordAnswer(false);
         }
         renderProgress();
         renderBrowseMode();
@@ -893,6 +1148,7 @@
             quizInput.disabled = true;
             submitBtn.disabled = true;
             replayBtn.style.display = 'none';
+            aiExampleBtn.style.display = 'none';
         }
     }
 
@@ -931,6 +1187,9 @@
         renderBrowseMode();
         renderProgress();
         replayBtn.style.display = 'none';
+        aiExampleBtn.style.display = 'none';
+        aiExampleDisplay.style.display = 'none';
+        micBtn.style.display = 'none';
     }
 
     function clearWrongWords() {
@@ -970,6 +1229,18 @@
         document.querySelectorAll('.mode-btn').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.mode === mode);
         });
+        // 语音模式特殊处理
+        if (mode === 'voice2en') {
+            micBtn.style.display = 'inline-block';
+        } else {
+            micBtn.style.display = 'none';
+            if (isListening) {
+                try { recognition.stop(); } catch(e) {}
+                isListening = false;
+                micBtn.classList.remove('listening');
+                micBtn.textContent = '🎤';
+            }
+        }
         renderQuizMode();
     }
 
@@ -994,13 +1265,12 @@
         renderBrowseMode();
         if (isQuizMode) renderQuizMode();
         renderLibrary();
+        renderStats();
     }
 
-    // 初始化：从存储恢复
     function restoreFromStorage() {
         library = loadLibrary();
         currentLibId = loadCurrentLibId();
-        // 如果当前lib不存在，取第一个
         if (currentLibId && !library.find(l => l.id === currentLibId)) {
             currentLibId = library.length > 0 ? library[0].id : null;
             saveCurrentLibId(currentLibId);
@@ -1015,9 +1285,9 @@
             renderProgress();
             quizPrompt.textContent = '📤 请上传词库';
             quizHint.textContent = '点击右上角 "上传词库" 按钮';
+            updateStats();
             return false;
         }
-        // 加载进度
         const progress = loadProgress(currentLibId);
         const lib = library.find(l => l.id === currentLibId);
         if (lib) {
@@ -1033,6 +1303,7 @@
         renderAll();
         renderWrongWords();
         renderProgress();
+        updateStats();
         return true;
     }
 
@@ -1056,6 +1327,7 @@
     clearWrongBtn.addEventListener('click', clearWrongWords);
     reviewWrongBtn.addEventListener('click', reviewWrongWords);
     resetAllBtn.addEventListener('click', resetAll);
+    resetStatsBtn.addEventListener('click', resetStats);
 
     quizInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
@@ -1064,9 +1336,21 @@
         }
     });
 
+    // 重播
+    replayBtn.addEventListener('click', function() {
+        if (currentWordForReplay) {
+            speakWord(currentWordForReplay);
+            this.textContent = '✅ 已重播';
+            setTimeout(() => { this.textContent = '🔊 重播读音'; }, 800);
+        }
+    });
+
     if (window.speechSynthesis) {
         setTimeout(() => window.speechSynthesis.getVoices(), 400);
     }
+
+    // 初始化语音识别
+    initSpeechRecognition();
 
     // 启动
     const hasRestored = restoreFromStorage();
@@ -1076,8 +1360,9 @@
         renderProgress();
         quizPrompt.textContent = '📤 请上传词库';
         quizHint.textContent = '点击右上角 "上传词库" 按钮';
+        updateStats();
     }
-    console.log('📘 英语考100 (多词库版) 已启动');
+    console.log('📘 英语考100 (智能版) 已启动');
 })();
 </script>
 </body>
